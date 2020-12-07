@@ -19,3 +19,7 @@ spring:
       password: batch@
       driver-class-name: org.mariadb.jdbc.Driver
 
+spring.batch.job.names: ${job.name:NONE}
+# 환경변수로 실행할 job을 선택한다. 변수 설정을 하지 않으면 NONE이므로 아무 실행을 하지 않는다.
+# --job.name=Job 이름
+# ex) java -jar batch-application.jar --job.name=simpleJob
