@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.JobScope;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,23 +28,18 @@ public class SimpleBatchConfig {
     @Bean
     public Job simpleJob() {
         return jobBuilderFactory.get("simpleJob")
-                .start(simpleStep1())
-                .next(simpleStep2())
+                .start(simpleStep1(null))
+                .next(simpleStep2(null))
                 .build();
-
-        /*
-        jobBuilderFactory.get("simpleJob") : job의 이름을 simpleJob이라고한다.
-        .start(simpleStep1())  :  시작 Step인 simpleStep1 시작한다.
-        .next(simpleStep2())   :  다음 Step인 simpleStep2 시작한다.
-
-         */
     }
 
     @Bean
-    public Step simpleStep1() {
+    @JobScope
+    public Step simpleStep1(@Value("#{jobParameters[requestDate]}") String requestDate) {
         return stepBuilderFactory.get("simpleStep1")
                 .tasklet((contribution, chunkContext) -> {
                     log.info(">>>>> This is Step1");
+                    log.info(">>>>> requstDate = {}", requestDate);
                     return RepeatStatus.FINISHED;
                 })
                 .build();
@@ -53,10 +50,12 @@ public class SimpleBatchConfig {
     }
 
     @Bean
-    public Step simpleStep2() {
+    @JobScope
+    public Step simpleStep2(@Value("#{jobParameters[requestDate]}") String requestDate) {
         return stepBuilderFactory.get("simpleStep2")
                 .tasklet((contribution, chunkContext) -> {
                     log.info(">>>>> This is Step2");
+                    log.info(">>>>> requstDate = {}", requestDate);
                     return RepeatStatus.FINISHED;
                 })
                 .build();
